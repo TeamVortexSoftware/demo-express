@@ -25,8 +25,15 @@ This demo demonstrates:
 ## 🔧 Features
 
 ### Demo Users
-- **admin@example.com** / password123 (admin role)
-- **user@example.com** / userpass (user role)
+
+The demo includes two test users using the **new simplified JWT format**:
+
+| Email | Password | Admin Scopes | Legacy Role |
+|-------|----------|--------------|-------------|
+| admin@example.com | password123 | `['autoJoin']` | admin |
+| user@example.com | userpass | `[]` | user |
+
+The demo showcases both the new simplified format (user with `adminScopes` array) and the legacy format (`role` + `groups`) for educational purposes. See [server.ts](src/server.ts) for implementation details.
 
 ### Available Routes
 
@@ -87,7 +94,11 @@ curl -X POST http://localhost:3000/api/vortex/jwt \\
 ### Key Integration Points
 
 #### 1. Vortex Configuration
+
+This demo uses Vortex's **new simplified JWT format** (recommended):
+
 ```typescript
+// Configure Vortex with new simplified format (recommended)
 configureVortex({
   apiKey: process.env.VORTEX_API_KEY || 'demo-api-key',
 
@@ -95,15 +106,21 @@ configureVortex({
     const user = getCurrentUser(req);
     return user ? {
       userId: user.id,
-      identifiers: [{ type: 'email', value: user.email }],
-      groups: user.groups,
-      role: user.role
+      userEmail: user.email,
+      adminScopes: user.adminScopes,
     } : null;
   },
 
   ...createAllowAllAccessControl()
 });
 ```
+
+The JWT payload includes:
+- `userId`: User's unique ID
+- `userEmail`: User's email address
+- `adminScopes`: Array of admin scopes (e.g., `['autoJoin']` for auto-join admin privileges)
+
+This replaces the legacy format with `identifiers`, `groups`, and `role` fields. The old format is still supported but deprecated. You can see both implementations commented in the [server.ts](src/server.ts) file.
 
 #### 2. Route Registration
 ```typescript

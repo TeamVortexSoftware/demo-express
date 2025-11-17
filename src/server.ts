@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure Vortex SDK
+// Configure Vortex SDK with new simplified format (recommended)
 configureVortex({
   apiKey: process.env.VORTEX_API_KEY || 'demo-api-key',
 
@@ -34,13 +34,21 @@ configureVortex({
       return null;
     }
 
-    // Convert to Vortex format
+    // Use new simplified format (recommended)
+    return {
+      userId: user.id,
+      userEmail: user.email,
+      adminScopes: user.adminScopes,
+    };
+
+    /* Legacy format (deprecated but still supported):
     return {
       userId: user.id,
       identifiers: [{ type: 'email', value: user.email }],
       groups: user.groups,
-      role: user.role
+      role: user.role,
     };
+    */
   },
 
   // For demo purposes, allow all operations
@@ -70,6 +78,7 @@ app.post('/api/auth/login', (req, res) => {
   // Create session JWT and set as cookie
   const sessionToken = createSessionJWT(user);
   res.cookie('session', sessionToken, {
+    path: '/', // Make cookie available for all routes
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -81,6 +90,7 @@ app.post('/api/auth/login', (req, res) => {
     user: {
       id: user.id,
       email: user.email,
+      adminScopes: user.adminScopes,
       role: user.role,
       groups: user.groups
     }

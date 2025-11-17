@@ -3,13 +3,16 @@ import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 
 // Demo users database (in a real app, this would be in a database)
+// Demo users with new simplified format (adminScopes)
+// Legacy fields (role, groups) are also included for backward compatibility demo
 const users = [
   {
     id: 'user-1',
     email: 'admin@example.com',
     password: bcrypt.hashSync('password123', 10), // hashed 'password123'
-    role: 'admin',
-    groups: [
+    adminScopes: ['autoJoin'], // New simplified field - grants auto-join admin privileges
+    role: 'admin', // Legacy field
+    groups: [ // Legacy field
       { type: 'team', id: 'team-1', name: 'Engineering' },
       { type: 'organization', id: 'org-1', name: 'Acme Corp' }
     ]
@@ -18,8 +21,9 @@ const users = [
     id: 'user-2',
     email: 'user@example.com',
     password: bcrypt.hashSync('userpass', 10), // hashed 'userpass'
-    role: 'user',
-    groups: [
+    adminScopes: [], // New simplified field - no admin privileges
+    role: 'user', // Legacy field
+    groups: [ // Legacy field
       { type: 'team', id: 'team-1', name: 'Engineering' }
     ]
   }
@@ -30,6 +34,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'demo-secret-key';
 export interface DemoUser {
   id: string;
   email: string;
+
+  // New simplified field (preferred)
+  adminScopes: string[];
+
+  // Legacy fields (deprecated but still supported for backward compatibility)
   role: string;
   groups: { type: string; id?: string; groupId?: string; name: string }[];
 }
@@ -40,6 +49,7 @@ export function createSessionJWT(user: DemoUser): string {
     {
       userId: user.id,
       email: user.email,
+      adminScopes: user.adminScopes,
       role: user.role,
       groups: user.groups
     },
@@ -55,6 +65,7 @@ export function verifySessionJWT(token: string): DemoUser | null {
     return {
       id: decoded.userId,
       email: decoded.email,
+      adminScopes: decoded.adminScopes ?? [],
       role: decoded.role,
       groups: decoded.groups
     };
@@ -73,6 +84,7 @@ export function authenticateUser(email: string, password: string): DemoUser | nu
   return {
     id: user.id,
     email: user.email,
+    adminScopes: user.adminScopes,
     role: user.role,
     groups: user.groups
   };
@@ -105,6 +117,7 @@ export function getDemoUsers() {
   return users.map(user => ({
     id: user.id,
     email: user.email,
+    adminScopes: user.adminScopes,
     role: user.role,
     groups: user.groups
   }));
