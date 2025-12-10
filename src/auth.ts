@@ -1,35 +1,37 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
-import { Request, Response } from 'express';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { Request, Response } from "express";
 
 // Demo users database (in a real app, this would be in a database)
 // Demo users with new simplified format (adminScopes)
 // Legacy fields (role, groups) are also included for backward compatibility demo
 const users = [
   {
-    id: 'user-1',
-    email: 'admin@example.com',
-    password: bcrypt.hashSync('password123', 10), // hashed 'password123'
-    adminScopes: ['autoJoin'], // New simplified field - grants auto-join admin privileges
-    role: 'admin', // Legacy field
-    groups: [ // Legacy field
-      { type: 'team', id: 'team-1', name: 'Engineering' },
-      { type: 'organization', id: 'org-1', name: 'Acme Corp' }
-    ]
+    id: "user-1",
+    email: "admin@example.com",
+    password: bcrypt.hashSync("password123", 10), // hashed 'password123'
+    adminScopes: ["autojoin"], // New simplified field - grants autojoin admin privileges
+    role: "admin", // Legacy field
+    groups: [
+      // Legacy field
+      { type: "team", id: "team-1", name: "Engineering" },
+      { type: "organization", id: "org-1", name: "Acme Corp" },
+    ],
   },
   {
-    id: 'user-2',
-    email: 'user@example.com',
-    password: bcrypt.hashSync('userpass', 10), // hashed 'userpass'
+    id: "user-2",
+    email: "user@example.com",
+    password: bcrypt.hashSync("userpass", 10), // hashed 'userpass'
     adminScopes: [], // New simplified field - no admin privileges
-    role: 'user', // Legacy field
-    groups: [ // Legacy field
-      { type: 'team', id: 'team-1', name: 'Engineering' }
-    ]
-  }
+    role: "user", // Legacy field
+    groups: [
+      // Legacy field
+      { type: "team", id: "team-1", name: "Engineering" },
+    ],
+  },
 ];
 
-const JWT_SECRET = process.env.JWT_SECRET || 'demo-secret-key';
+const JWT_SECRET = process.env.JWT_SECRET || "demo-secret-key";
 
 export interface DemoUser {
   id: string;
@@ -51,10 +53,10 @@ export function createSessionJWT(user: DemoUser): string {
       email: user.email,
       adminScopes: user.adminScopes,
       role: user.role,
-      groups: user.groups
+      groups: user.groups,
     },
     JWT_SECRET,
-    { expiresIn: '1d' }
+    { expiresIn: "1d" },
   );
 }
 
@@ -67,7 +69,7 @@ export function verifySessionJWT(token: string): DemoUser | null {
       email: decoded.email,
       adminScopes: decoded.adminScopes ?? [],
       role: decoded.role,
-      groups: decoded.groups
+      groups: decoded.groups,
     };
   } catch {
     return null;
@@ -75,8 +77,11 @@ export function verifySessionJWT(token: string): DemoUser | null {
 }
 
 // Authenticate user by email and password
-export function authenticateUser(email: string, password: string): DemoUser | null {
-  const user = users.find(u => u.email === email);
+export function authenticateUser(
+  email: string,
+  password: string,
+): DemoUser | null {
+  const user = users.find((u) => u.email === email);
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return null;
   }
@@ -86,7 +91,7 @@ export function authenticateUser(email: string, password: string): DemoUser | nu
     email: user.email,
     adminScopes: user.adminScopes,
     role: user.role,
-    groups: user.groups
+    groups: user.groups,
   };
 }
 
@@ -104,7 +109,7 @@ export function getCurrentUser(req: Request): DemoUser | null {
 export function requireAuth(req: Request, res: Response, next: Function) {
   const user = getCurrentUser(req);
   if (!user) {
-    return res.status(401).json({ error: 'Authentication required' });
+    return res.status(401).json({ error: "Authentication required" });
   }
 
   // Attach user to request for use in other middleware
@@ -114,11 +119,11 @@ export function requireAuth(req: Request, res: Response, next: Function) {
 
 // Get demo users (for testing)
 export function getDemoUsers() {
-  return users.map(user => ({
+  return users.map((user) => ({
     id: user.id,
     email: user.email,
     adminScopes: user.adminScopes,
     role: user.role,
-    groups: user.groups
+    groups: user.groups,
   }));
 }

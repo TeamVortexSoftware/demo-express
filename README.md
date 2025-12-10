@@ -28,21 +28,23 @@ This demo demonstrates:
 
 The demo includes two test users using the **new simplified JWT format**:
 
-| Email | Password | Admin Scopes | Legacy Role |
-|-------|----------|--------------|-------------|
-| admin@example.com | password123 | `['autoJoin']` | admin |
-| user@example.com | userpass | `[]` | user |
+| Email             | Password    | Admin Scopes   | Legacy Role |
+| ----------------- | ----------- | -------------- | ----------- |
+| admin@example.com | password123 | `['autojoin']` | admin       |
+| user@example.com  | userpass    | `[]`           | user        |
 
 The demo showcases both the new simplified format (user with `adminScopes` array) and the legacy format (`role` + `groups`) for educational purposes. See [server.ts](src/server.ts) for implementation details.
 
 ### Available Routes
 
 #### Authentication Routes
+
 - `POST /api/auth/login` - Login with email/password
 - `POST /api/auth/logout` - Logout and clear session
 - `GET /api/auth/me` - Get current user info
 
 #### Vortex Routes (via SDK)
+
 - `POST /api/vortex/jwt` - Generate Vortex JWT
 - `GET /api/vortex/invitations` - Get invitations by target
 - `GET /api/vortex/invitations/:id` - Get specific invitation
@@ -53,6 +55,7 @@ The demo showcases both the new simplified format (user with `adminScopes` array
 - `POST /api/vortex/invitations/:id/reinvite` - Resend invitation
 
 #### Demo/Utility Routes
+
 - `GET /health` - Health check with Vortex route info
 - `GET /api/demo/users` - List demo users
 - `GET /api/demo/protected` - Protected route example
@@ -60,14 +63,17 @@ The demo showcases both the new simplified format (user with `adminScopes` array
 ## 💻 Usage
 
 ### 1. Start the Server
+
 ```bash
 pnpm dev
 ```
 
 ### 2. Open the Web Interface
+
 Visit [http://localhost:3000](http://localhost:3000) to access the interactive demo interface.
 
 ### 3. Test the Flow
+
 1. **Login** with one of the demo users
 2. **Generate JWT** to see Vortex JWT creation in action
 3. **Test Invitations** by target (email, username, phone)
@@ -75,6 +81,7 @@ Visit [http://localhost:3000](http://localhost:3000) to access the interactive d
 5. **Try Other Features** like protected routes and health checks
 
 ### 4. Direct API Testing
+
 You can also test the APIs directly:
 
 ```bash
@@ -100,34 +107,39 @@ This demo uses Vortex's **new simplified JWT format** (recommended):
 ```typescript
 // Configure Vortex with new simplified format (recommended)
 configureVortex({
-  apiKey: process.env.VORTEX_API_KEY || 'demo-api-key',
+  apiKey: process.env.VORTEX_API_KEY || "demo-api-key",
 
   authenticateUser: async (req, res) => {
     const user = getCurrentUser(req);
-    return user ? {
-      userId: user.id,
-      userEmail: user.email,
-      adminScopes: user.adminScopes,
-    } : null;
+    return user
+      ? {
+          userId: user.id,
+          userEmail: user.email,
+          adminScopes: user.adminScopes,
+        }
+      : null;
   },
 
-  ...createAllowAllAccessControl()
+  ...createAllowAllAccessControl(),
 });
 ```
 
 The JWT payload includes:
+
 - `userId`: User's unique ID
 - `userEmail`: User's email address
-- `adminScopes`: Array of admin scopes (e.g., `['autoJoin']` for auto-join admin privileges)
+- `adminScopes`: Array of admin scopes (e.g., `['autojoin']` for autojoin admin privileges)
 
 This replaces the legacy format with `identifiers`, `groups`, and `role` fields. The old format is still supported but deprecated. You can see both implementations commented in the [server.ts](src/server.ts) file.
 
 #### 2. Route Registration
+
 ```typescript
-app.use('/api/vortex', createVortexRouter());
+app.use("/api/vortex", createVortexRouter());
 ```
 
 #### 3. Authentication Bridge
+
 The demo shows how to bridge your existing authentication system with Vortex's authentication requirements.
 
 ## 📁 Project Structure
@@ -153,6 +165,7 @@ apps/demo-express/
 - `createAllowAllAccessControl()` for easy testing
 
 For production use:
+
 - Use a real database for user storage
 - Implement proper access control hooks
 - Use secure JWT secrets and proper session management
@@ -162,17 +175,19 @@ For production use:
 ## 🛠️ Customization
 
 ### Adding Your Own Routes
+
 ```typescript
 // Add custom routes alongside Vortex
-app.get('/api/custom', (req, res) => {
-  res.json({ message: 'Custom route!' });
+app.get("/api/custom", (req, res) => {
+  res.json({ message: "Custom route!" });
 });
 
 // Vortex routes
-app.use('/api/vortex', createVortexRouter());
+app.use("/api/vortex", createVortexRouter());
 ```
 
 ### Custom Access Control
+
 ```typescript
 configureVortex({
   apiKey: process.env.VORTEX_API_KEY!,
