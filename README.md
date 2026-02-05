@@ -5,7 +5,7 @@ A demonstration Express.js application showcasing the Vortex Express 5 SDK integ
 ## 🚀 Quick Start
 
 ```bash
-cd apps/demo-express
+cd demos/demo-express
 pnpm install
 pnpm dev
 ```
@@ -145,7 +145,7 @@ The demo shows how to bridge your existing authentication system with Vortex's a
 ## 📁 Project Structure
 
 ```
-apps/demo-express/
+demos/demo-express/
 ├── src/
 │   ├── auth.ts          # Authentication utilities
 │   └── server.ts        # Main Express server
@@ -208,6 +208,6 @@ configureVortex({
 
 ## 🔗 Related
 
-- [Vortex Express SDK Documentation](../../packages/vortex-express-5-sdk/README.md)
-- [Vortex Node SDK Documentation](../../packages/vortex-node-22-sdk/README.md)
+- [Vortex Express SDK Documentation](../../sdks/vortex-express-5-sdk/README.md)
+- [Vortex Node SDK Documentation](../../sdks/vortex-node-22-sdk/README.md)
 - [Vortex React Provider Documentation](../../packages/vortex-react-provider/README.md)
