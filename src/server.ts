@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import {
   configureVortex,
   createVortexRouter,
-  createAllowAllAccessControl
+  createAllowAllAccessControl,
 } from '@teamvortexsoftware/vortex-express-5-sdk';
 import {
   getCurrentUser,
@@ -13,7 +13,7 @@ import {
   createSessionJWT,
   requireAuth,
   getDemoUsers,
-  type DemoUser
+  type DemoUser,
 } from './auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -53,13 +53,13 @@ configureVortex({
 
   // For demo purposes, allow all operations
   // In production, you'd implement proper access control
-  ...createAllowAllAccessControl()
+  ...createAllowAllAccessControl(),
 });
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieParser() as unknown as express.RequestHandler);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Demo authentication routes
@@ -82,7 +82,7 @@ app.post('/api/auth/login', (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 
   res.json({
@@ -92,8 +92,8 @@ app.post('/api/auth/login', (req, res) => {
       email: user.email,
       adminScopes: user.adminScopes,
       role: user.role,
-      groups: user.groups
-    }
+      groups: user.groups,
+    },
   });
 });
 
@@ -122,7 +122,7 @@ app.get('/api/demo/protected', requireAuth, (req, res) => {
   res.json({
     message: 'This is a protected route!',
     user: user,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -147,9 +147,9 @@ app.get('/health', (req, res) => {
         '/api/vortex/invitations/:id',
         '/api/vortex/invitations/accept',
         '/api/vortex/invitations/by-group/:type/:id',
-        '/api/vortex/invitations/:id/reinvite'
-      ]
-    }
+        '/api/vortex/invitations/:id/reinvite',
+      ],
+    },
   });
 });
 
